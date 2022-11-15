@@ -1,0 +1,7 @@
+Pour gérer des commande comme php migrate il faut utiliser la ligne de commande
+
+docker-compose exec php php /var/www/html/artisan migrate
+
+docker-compose exec php php /var/www/html/artisan make:migration create_recipes_table
+
+docker-compose exec php php /var/www/html/artisan make:component Auth

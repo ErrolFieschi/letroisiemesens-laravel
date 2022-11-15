@@ -1,0 +1,51 @@
+version: '3'
+
+networks:
+  laravel-revision:
+
+services:
+  nginx:
+    image: nginx:stable-alpine
+    container_name: laravel-nginx-server
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/var/www/html ## premiere partie prend le chemin du stockage locale et le second celui dans le serveur nginx
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+      - mysql
+    networks:
+      - laravel-revision
+
+  mysql:
+    image: mysql:5.7.22
+    container_name: laravel-mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "4306:3306" ## on évite les conflit si le port 3000 est déjà réservé
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      ## appelé lors de l'initialisation et va mettre en place le nom de la bdd, le nom du user, le password
+      MYSQL_DATABASE: laravel-revision
+      MYSQL_USER: errol
+      MYSQL_PASSWORD: admin
+      MYSQL_ROOT_PASSWORD: admin
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    networks:
+      - laravel-revision
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel-php
+    volumes:
+      - ./src:/var/www/html
+    ports:
+      - "9000:9000"
+    networks:
+      - laravel-revision
